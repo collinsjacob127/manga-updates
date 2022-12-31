@@ -6,10 +6,11 @@ from fake_useragent import UserAgent
 from bs4 import BeautifulSoup
 import os
 
-from urls import objects
 from urls import tags
+from urls import objects
+from sort_time import sort_chronologically
 
-if __name__ == "__main__":
+def update_manga(objects):
     # Read the JSON file and update the objects with the values from the file
     try:
         with open("data.json") as f:
@@ -31,7 +32,7 @@ if __name__ == "__main__":
     ua = UserAgent()
 
     # Iterate through the objects
-    for obj in objects:
+    for i, obj in enumerate(objects):
         # Get the URL and domain from the object
         url = obj["url"]
         domain = url.split("/")[2]
@@ -81,22 +82,33 @@ if __name__ == "__main__":
 
         # Compare the values with the ones in the object
         if current_chapter != obj["current_chapter"]:
-            print(f"Current chapter for {obj['title']} has changed from {obj['current_chapter']} to {current_chapter}")
+            print(f">>> {i}. {obj['title']} - New Chapter! {obj['current_chapter']} => {current_chapter} <<<")
+            print(f"New Chapter! ")
             obj["current_chapter"] = current_chapter
-        if last_updated != obj["last_updated"]:
-            print(f"Last updated for {obj['title']} has changed from {obj['last_updated']} to {last_updated}")
             obj["last_updated"] = last_updated
+        else:
+            print(f"{i}. {obj['title']} - No Change")
 
-        print("-------------------------------------------------------")
 
-    test_object = {
-        "title": "Test",
-        "current_chapter": "Test Chapter",
-        "url": "test url",
-        "last_updated": "Test date"
-    }
+    sorted = sort_chronologically(objects)
+    final = []
 
-    # objects.append(test_object)
+    for sobj in sorted:
+        for obj in objects:
+            if sobj[0]["title"] == obj["title"]:
+                final.append(
+                    {
+                        "title": obj["title"],
+                        "current_chapter": obj["current_chapter"],
+                        "last_updated": sobj[1],
+                        "url": obj["url"]
+                    }
+                )
+    
     # Write the updated list of objects to a JSON file 
     with open("data.json", "w") as f:
-        json.dump(objects, f)
+        json.dump(final, f)
+
+    return 'Manga Updated!'
+
+update_manga(objects)

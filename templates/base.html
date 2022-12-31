@@ -1,0 +1,29 @@
+<!-- base.html -->
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        /* Add some styling to the table */
+        table {
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            border: 1px solid black;
+            padding: 10px;
+        }
+
+        th {
+            background-color: lightgray;
+        }
+    </style>
+</head>
+
+<body>
+    {% block content %}{% endblock %}
+    {% block script %}{% endblock %}
+</body>
+
+</html>
