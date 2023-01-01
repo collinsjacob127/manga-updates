@@ -25,7 +25,7 @@ def get_data():
             print("Failed to retrieve data")
             return NULL
 
-@app.route('/update', methods=['GET', 'POST'])
+@app.route('/update', methods=['POST'])
 def handle_request():
     if request.method == 'POST':
         # Handle the POST request
@@ -36,4 +36,6 @@ def handle_request():
         return render_template('index.html')
 
 if __name__ == '__main__':
+    app.debug = True
+    app.config['TEMPLATES_AUTO_RELOAD'] = True
     app.run()

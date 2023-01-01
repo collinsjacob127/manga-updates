@@ -53,17 +53,6 @@ def update_manga(objects):
             time.sleep(random.uniform(1, 3))
             response = session.get(response.url, headers=headers)
         
-        # print(response.text)
-
-        # Use the tags dictionary to get the tags for 'current chapter' and 'last updated'
-        try:
-            current_chapter_tag = tags[domain]["current_chapter"]
-            last_updated_tag = tags[domain]["last_updated"]
-        except KeyError:
-            # Handle the case where the domain is not present in the tags dictionary
-            print(f"No tags available for domain {domain}")
-            continue
-
         # Parse the HTML content of the response using BeautifulSoup
         soup = BeautifulSoup(response.text, "html.parser")
 
@@ -72,7 +61,7 @@ def update_manga(objects):
 
         # Extract the 'current chapter' and 'last updated' values from the page
         try:
-            current_chapter = soup.select_one(current_chapter_tag).text
+            current_chapter = soup.select_one().text
         except:
             print(f"Invalid selecter for chapter at {url}")
         try:

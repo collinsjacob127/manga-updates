@@ -15,43 +15,13 @@
 </table>
 
 <button id="run-button">Run Script</button>
+
 {% endblock %}
 
 {% block script %}
 <script>
-    window.onload = function () {
-        // Read the JSON file and update the table
-        fetch("/data", { method: "GET" })
-            .then(response => response.json())
-            .then(data => {
-                // Get the body of the table
-                const tableBody = document.getElementById("data-table-body");
-
-                // Iterate through the list of objects in the JSON file
-                for (const obj of data) {
-                    // Create a new row for the table
-                    const row = document.createElement("tr");
-
-                    // Create a new cell for each attribute of the object and add it to the row
-                    for (const [key, value] of Object.entries(obj)) {
-                        // Create a new cell
-                        const cell = document.createElement("td");
-                        // If the attribute is 'title', create a link to the URL
-                        if (key === "title") {
-                            const link = document.createElement("a");
-                            link.href = obj.url;
-                            link.innerText = value;
-                            cell.appendChild(link);
-                        } else {
-                            // Otherwise, just add the value to the cell
-                            cell.innerText = value;
-                        }
-                        row.appendChild(cell);
-                    }
-                    // Add the row to the table body
-                    tableBody.appendChild(row);
-                }
-            });
+    window.onload = function() {
+        updateTable();
     }
 
     const button = document.getElementById("run-button")
@@ -82,40 +52,35 @@
                 tableBody.innerHTML = "";
 
                 // Iterate through the list of objects in the JSON file
+                const attributeOrder = ['title', 'current_chapter', 'last_updated'];
+                                
                 for (const obj of data) {
                     // Create a new row for the table
                     const row = document.createElement("tr");
 
-                    // Create cells for the name and age attributes
-                    const titleCell = document.createElement("td");
-                    // Populate title cell
-                    const link = document.createElement("a");
-                    link.href = obj.url;
-                    link.innerText = obj.title;
-                    titleCell.appendChild(link);
+                    // Iterate through the attributeOrder array
+                    for (const attribute of attributeOrder) {
+                        // Create a new cell
+                        const cell = document.createElement("td");
 
-                    // Populate chapter cell
-                    // to link current chapter to the current chapter
-                    // uncomment the last 4 and comment the second
-                    const chapterCell = document.createElement("td");
-                    chapterCell.innerText = obj.current_chapter;
-                    // const chapterLink = document.createElement("a");
-                    // chapterLink.href = obj.url;
-                    // chapterLink.innerText = obj.chap_url;
-                    // chapterCell.appendChild(chapterLink);
+                        // If the attribute is 'title', create a link to the URL
+                        if (attribute === "title") {
+                            const link = document.createElement("a");
+                            link.href = obj.url;
+                            link.innerText = obj[attribute];
+                            cell.appendChild(link);
+                        } else {
+                            // Otherwise, just add the value of the attribute to the cell
+                            cell.innerText = obj[attribute];
+                        }
 
-                    // Upload date cell
-                    const date = document.createElement("td");
-                    dateCell.innerText = obj.last_updated;
-
-                    // Add the cells to the row
-                    row.appendChild(titleCell);
-                    row.appendChild(chapterCell);
-                    row.appendChild(dateCell);
-
+                        row.appendChild(cell);
+                    }
+                    // Add the row to the table body
                     tableBody.appendChild(row);
                 }
+
             });
-    }
+        }
 </script>
 {% endblock %}
