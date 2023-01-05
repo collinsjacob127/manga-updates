@@ -3,7 +3,7 @@
 # Jacob Collins
 # December 2022
 
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, jsonify
 
 from urls import objects
 from manga_updates import *
@@ -19,17 +19,17 @@ def get_data():
     # Read the JSON file and update the objects with the values from the file
     try:
         with open("data.json") as f:
-            return json.load(f)
+            data = json.load(f)
+        return jsonify(data)
     except FileNotFoundError:
         # If the file does not exist, use the default values from the objects
-            print("Failed to retrieve data")
-            return NULL
+        return "Failed to retrieve data"
 
 @app.route('/update', methods=['POST'])
 def handle_request():
     if request.method == 'POST':
         # Handle the POST request
-        return update_manga(objects)
+        return update_manga()
 
     elif request.method == 'GET':
         # Handle the GET request

@@ -7,22 +7,29 @@ from bs4 import BeautifulSoup
 import os
 
 from urls import tags
-from urls import objects
+from urls import objects as defaults
 from sort_time import sort_chronologically
 
-def update_manga(objects):
+def update_manga():
+    objects = []
     # Read the JSON file and update the objects with the values from the file
     try:
         with open("data.json") as f:
             data = json.load(f)
-            for obj in objects:
-                for saved in data:
-                    # Check if the URL is present in the JSON file
+        
+            for saved in data:
+                objects.append(saved)
+            for obj in defaults:
+                exists = False
+                for saved in objects:
                     if obj["url"] == saved["url"]:
-                        # Update the object with the values from the JSON file
-                        obj.update(saved)
+                        exists = True
+                if (not(exists)):
+                    objects.append(obj)
     except FileNotFoundError:
-        # If the file does not exist, use the default values from the objects
+        print("Error: data.json not located")
+        for obj in defaults:
+            objects.append(obj)
         pass
 
     # Create a session to store cookies
@@ -64,7 +71,17 @@ def update_manga(objects):
             print(f"No tags available for domain {domain}")
             continue
 
-        # Parse the HTML content of the response using BeautifulSoup
+        # if domain == "manhuaplus.com":
+        #     with open("manhuaplus.html", "w") as f:
+        #         f.write(response.text)
+        #     print("Searching manhuaplus...")
+        #     soup = BeautifulSoup(response.text, "html.parser")
+        #     upcoming_events_div = soup.select_one("div.'listing-chapters_wrap cols-1 show-more show'")
+        #     print(upcoming_events_div)
+        #     for link in upcoming_events_div.select('div.title a[href]'):
+        #         print(link['href'])
+        # else:
+        #     # Parse the HTML content of the response using BeautifulSoup
         soup = BeautifulSoup(response.text, "html.parser")
 
         current_chapter = ""
@@ -74,16 +91,18 @@ def update_manga(objects):
         try:
             current_chapter = soup.select_one(current_chapter_tag).text
         except:
-            print(f"Invalid selecter for chapter at {url}")
+            print(f"Invalid selecter for chapter at {domain}")
         try:
             last_updated = soup.select_one(last_updated_tag).text
         except:
-            print(f"Invalid selecter for last_updated at {url}")
+            print(f"Invalid selecter for last_updated at {domain}")
 
         # Compare the values with the ones in the object
         if current_chapter != obj["current_chapter"]:
-            print(f">>> {i}. {obj['title']} - New Chapter! {split(obj['current_chapter'])} => {current_chapter} <<<")
-            obj["current_chapter"] = current_chapter
+            old_chap = obj['current_chapter'].split('\n')[0]
+            new_chap = current_chapter.split('\n')[0]
+            print(f"{i}. >>> {obj['title']} - New Chapter! {old_chap} => {new_chap} <<<")
+            obj["current_chapter"] = new_chap
             obj["last_updated"] = last_updated
         else:
             print(f"{i}. {obj['title']} - No Change")
@@ -111,4 +130,4 @@ def update_manga(objects):
     return 'Manga Updated!'
 
 if __name__ == '__main__':
-    manga_updates(objects)
+    update_manga()

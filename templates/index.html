@@ -14,7 +14,8 @@
     </tbody>
 </table>
 
-<button id="run-button">Run Script</button>
+<button id="refresh-button">Run Script</button>
+<button id="add-button">Add Manga</button>
 
 {% endblock %}
 
@@ -24,12 +25,28 @@
         updateTable();
     }
 
-    const button = document.getElementById("run-button")
-    button.addEventListener("click", runScript);
+    const refresh_btn = document.getElementById("refresh-button")
+    refresh_btn.addEventListener("click", runScript);
     function runScript() {
         console.log("runScript has started.");
         // Send a POST request to the python script
         fetch("/update", { method: "POST" })
+            .then(response => {
+                // Update the table after a delay to allow the python script to finish running
+                window.setTimeout(updateTable, 25000);
+            })
+            .catch(error => {
+                // Handle any errors that occur
+                console.error(error);
+            });
+    }
+
+    const add_btn = document.getElementById("add-button")
+    add_btn.addEventListener("click", addManga);
+    function addManga() {
+        console.log("Adding a new manga...");
+        // Send a POST request to the python script
+        fetch("/addManga", { method: "POST" })
             .then(response => {
                 // Update the table after a delay to allow the python script to finish running
                 window.setTimeout(updateTable, 25000);
